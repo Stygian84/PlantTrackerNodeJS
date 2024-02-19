@@ -61,7 +61,7 @@ app.get("/api/row", async (req, res) => {
   try {
     const query = {
       text: `SELECT RowID, Status
-      FROM public."RowData"
+      FROM public."RowData2"
       ORDER BY RowID ASC;
       `,
     };
@@ -80,7 +80,7 @@ app.get("/api/row", async (req, res) => {
 app.get("/api/status", async (req, res) => {
   try {
     const { rowId } = req.query;
-    let queryText = `SELECT * FROM public."RowData"`;
+    let queryText = `SELECT * FROM public."RowData2"`;
 
     if (rowId) {
       queryText += ` WHERE RowID = $1 ORDER BY RowID ASC`;
@@ -104,21 +104,21 @@ app.get("/api/status", async (req, res) => {
 app.get("/api/plant", async (req, res) => {
   try {
     const { rowId, plantId, property } = req.query;
-    let queryText = `SELECT * FROM public."PlantData"`;
+    let queryText = `SELECT * FROM public."PlantData2"`;
 
     if (rowId && plantId && property) {
       const subQuery = `SELECT timestamp, ${property}
-      FROM public."PlantData"
+      FROM public."PlantData2"
       WHERE RowID = $1 AND PlantID = $2
       ORDER BY timestamp ASC`;
       const queryValues = [rowId, plantId];
       const result = await pool.query({ text: subQuery, values: queryValues });
       res.json(result.rows);
     } else if (rowId && !plantId && !property) {
-      queryText = `SELECT * FROM public."PlantData" pd
+      queryText = `SELECT * FROM public."PlantData2" pd
                    JOIN (
                    SELECT PlantID, MAX(Timestamp) AS latest_timestamp
-                   FROM public."PlantData"
+                   FROM public."PlantData2"
                    WHERE RowID = $1
                    GROUP BY PlantID
                    ) AS latest ON pd.PlantID = latest.PlantID AND pd.Timestamp = latest.latest_timestamp
